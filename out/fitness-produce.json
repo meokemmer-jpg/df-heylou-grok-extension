@@ -1,9 +1,9 @@
 {
   "df": "df-heylou-grok-extension",
-  "ts": "2026-06-08T02:42:52.562421+00:00",
+  "ts": "2026-06-08T23:59:16.337779+00:00",
   "ok": true,
-  "bytes": 6055,
-  "model": "kemmer-70b-ctx8k",
+  "bytes": 7878,
+  "model": "kemmer-14b-ctx8k",
   "mode": "produce",
-  "duration_s": 177.9
+  "duration_s": 55.7
 }

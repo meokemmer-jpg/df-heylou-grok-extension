@@ -1,155 +1,159 @@
 # df-heylou-grok-extension — PRODUKTION [CRUX-MK]
-*2026-06-08T02:42:52.560052+00:00 | ollama-local/kemmer-70b-ctx8k*
+*2026-06-08T23:59:16.333831+00:00 | ollama-local/kemmer-14b-ctx8k*
 
-# df-heylou-grok-extension
-## Einführung
-Die Dark Factory `df-heylou-grok-extension` ist ein entscheidender Bestandt
-Bestandteil unserer Strategie, um den Reach von HeyLou zu erweitern und die
-die Verbreitung seiner Services zu erhöhen. Durch die Integration mit der G
-Grok LLM Plattform ermöglichen wir es unseren Nutzern, auf eine Vielzahl vo
-von Funktionen zuzugreifen, die ihre Reiseplanung und -buchung erleichtern.
-erleichtern.
+# Dokumentation für df-heylou-grok-extension
 
-## Funktionsbeschreibung
-Die `df-heylou-grok-extension` bietet fünf Hauptfunktionen an:
+## Grundlegende Informationen
 
-1. **search_hotels(location, dates, preferences):** Diese Funktion ermöglic
-ermöglicht es Nutzern, Hotels in einem bestimmten Bereich zu suchen und zu 
-filtern, basierend auf ihren Vorlieben und Reisedaten.
-2. **get_rates(hotel_id, date_range):** Mit dieser Funktion können Nutzer d
-die aktuellen Preise für ein spezifisches Hotel innerhalb eines bestimmten 
-Zeitraums abrufen.
-3. **compare_otas(hotel_id, dates):** Diese Funktion ermöglicht es Nutzern,
-Nutzern, die Preise und Verfügbarkeiten von verschiedenen Online-Reisebüros
-Online-Reisebüros (OTAs) wie Booking.com oder Expedia zu vergleichen.
-4. **book_direct(hotel_id, room_type, guest, dates):** Mit dieser Funktion 
-können Nutzer direkt ohne Kommission über die HeyLou API buchen.
-5. **optimize_revenue(hotel_id):** Diese Funktion ist ein Stub und soll in 
-Zukunft eine Revenue-Optimierung für Hotels bereitstellen.
+- **Status:** VOLLSTAENDIG, Tier: GOLDCANDIDATE
+- **Welle:** 39
+- **K_0-Touch:** true, `book_direct` ist K_0-relevant.
 
-## Architektur
-Die `df-heylou-grok-extension` verwendet JSON-Schemata, um Tool-Declaration
-Tool-Declarations zu erstellen und die Grok LLM Plattform zu integrieren. D
-Die Architektur sieht wie folgt aus:
+### Warum?
 
-*   Die Grok LLM verarbeitet Anfragen und leitet sie an die `GrokExtension.
-`GrokExtension.handle_function_call()` weiter.
-*   Diese Funktion ruft dann die entsprechenden Funktionen aus dem HeyLou A
-API Backend auf.
+Die Integration von HeyLou in die Grok LLM Plattform erweitert den Reach und die Reichweite der HeyLou Services durch die Nutzung der breiten Userbasis der Grok Plattform. Dies ermöglicht es, neue Kunden zu gewinnen und bestehende Kunden mit einem umfassenderen Angebot zu versorgen.
 
-## Sandbox-Einstellungen
-Für den Mock-Modus ist `DF_HEYLOU_GROK_EXT_ENABLED=false` gesetzt. Für den 
-Real-Modus Betrieb sind die Umgebungsvariablen `PHRONESIS_TICKET` und `GROK
-`GROK_API_KEY` erforderlich.
+### Sandbox-Einstellungen
 
-## Test-Infrastruktur
-Die Test-Infrastruktur besteht aus einer Reihe von Pytest-Tests, die wie fo
-folgt ausgeführt werden können:
+Für Entwicklung und Testzwecke ist das System in zwei Modi betrieben:
+
+- **Mock-Modus:** `DF_HEYLOU_GROK_EXT_ENABLED=false` führt dazu, dass alle API-Aufrufe mit synthetischen Daten ausgeführt werden. Dies erleichtert die Fehlersuche und Testen ohne den Zugriff auf live-dienste zu benötigen.
+  
+- **Real-Modus:** `DF_HEYLOU_GROK_EXT_ENABLED=true`, zusammen mit `PHRONESIS_TICKET` und `GROK_API_KEY`. Diese Umgebungsvariablen stellen sicher, dass der Dark Factory realistische Daten und Services zur Verfügung stehen.
+
+### Funktionsbeschreibung
+
+1. **search_hotels(location, dates, preferences):**
+   Dieser Funktion wird ein Suchbegriff für eine geografische Position (z.B. "New York"), einen Datumsbereich (z.B. ["2023-05-18", "2023-05-20"]) und persönliche Präferenzen übergeben, die das User-Profile reflektieren (z.B. Zimmerklasse, Wellnessangebote). Die Funktion durchsucht den HeyLou Travel Knowledge Graph für passende Hotels und gibt eine Liste von Hotelvorschlägen zurück.
+
+   **Beispiel-Aufruf:**
+   ```python
+   search_hotels("New York", ["2023-05-18", "2023-05-20"], {"room_class": "Deluxe"})
+   ```
+
+2. **get_rates(hotel_id, date_range):** 
+   Diese Funktion erfragt die Preise und Verfügbarkeiten für ein spezifisches Hotel (`hotel_id`) in einem bestimmten Datumsbereich (`date_range`). Sie verwendet den df-pms-mews-adapter zur Kommunikation mit dem PMS/RMS des Hotels.
+
+   **Beispiel-Aufruf:**
+   ```python
+   get_rates("12345", ["2023-06-05", "2023-06-07"])
+   ```
+
+3. **compare_otas(hotel_id, dates):**
+   Diese Funktion vergleicht die Preise und Verfügbarkeiten für ein Hotel (`hotel_id`) über verschiedene Online Travel Agenturen (OTAs) wie Booking.com, Expedia usw. Sie bietet dem Nutzer eine Übersicht der besten Angebote.
+
+   **Beispiel-Aufruf:**
+   ```python
+   compare_otas("12345", ["2023-06-05"])
+   ```
+
+4. **book_direct(hotel_id, room_type, guest, dates):**
+   Mit dieser Funktion kann ein Hotel direkt über den HeyLou API Service gebucht werden, ohne zusätzliche Kommissionen zu entstehen. Es benötigt die `hotel_id`, eine Beschreibung des Zimmertyps (`room_type`), Angaben zum Gast (z.B. Name und Kontaktinformationen) sowie die Buchungsdaten.
+
+   **Beispiel-Aufruf:**
+   ```python
+   book_direct("12345", "Single Room", {"name": "John Doe", "email": "john.doe@example.com"}, ["2023-06-05"])
+   ```
+
+5. **optimize_revenue(hotel_id):**
+   Diese Funktion bietet eine Revenue-Optimierung für ein Hotel (`hotel_id`). Sie analysiert die aktuellen Buchungen und empfiehlt Anpassungen an den Preis oder die Verfügbarkeit, um maximale Gewinne zu erzielen.
+
+### Architektur
+
+1. **Grok LLM:** Der Grok Language Model Management System verarbeitet alle eingehenden User-Anfragen und richtet sie als `functionCall` an unsere Extension, df-heylou-grok-extension.
+   
+2. **df-heylou-grok-extension.handle_function_call():** Diese Methode leitet die Anfrage an das entsprechende Backend-Modul weiter (z.B. df-pms-mews-adapter für `get_rates`). Es gibt Mocks für alle Funktionen in Entwicklungsmodus (`DF_HEYLOU_GROK_EXT_ENABLED=false`).
+
+3. **Backend Integration:** Für jede Funktionsaufruf werden spezielle Adapter verwendet, die Daten aus verschiedenen Quellen (z.B. Hotelsystems) extrahieren und diese an den Grok LLM zurückgeben.
+
+### Sandbox-Architektur
+
+Die Architektur besteht aus folgenden Hauptkomponenten:
+
+- **Grok LLM:** Verarbeitet Anfragen und leitet sie in Form von `functionCall` an die Erweiterung.
+- **df-heylou-grok-extension.handle_function_call()**: Diese Methode handhabt Funktionen wie `search_hotels`, `get_rates`, `compare_otas`, `book_direct` und `optimize_revenue`. Sie verarbeitet JSON-Schemata für Tool Declarations, um sicherzustellen, dass die Daten korrekt formatiert sind.
+- **AuditLogger (HMAC-SHA256 JSONL)**: Ein Logger, der jede Funktion aufnimmt und sie nach Standards des HMAC-SHA256 speichert. Dies ist wichtig zur Überwachung und Sicherheit.
+
+### Integration mit anderen DFs (Cross-DF-Coupling)
+
+Für die Funktionsdefinitionen in Welle 36/37 Backend wird Lazy Import Stubs verwendet, um sicherzustellen, dass Backends import-sicher sind und keine Fehler während der Entwicklung auftreten. Dies verhindert auch unnötige Abhängigkeiten von unvollständigen oder noch nicht implementierten Modulen.
+
+### Test-Infrastruktur
+
+Die Testinfrastruktur ist in einem Docker-Build-Container integriert, um sicherzustellen, dass alle Tests einheitlich durchgeführt werden können. Die Tests werden mithilfe der pytest-Bibliothek ausgeführt:
 
 ```bash
 pytest tests/ -v
 ```
 
-## Integration mit anderen DFs (Cross-DF-Coupling)
-Für Funktionsdefinitionen in Welle 36/37 Backend wird Lazy Import Stubs ver
-verwendet, um sicherzustellen, dass die Backends import-sicher sind.
+Diese Kommandozeile führt eine Reihe von Tests aus und liefert detaillierte Ergebnisse.
 
-## Implementierungsdetails
+### Sandbox-Default
 
-### search\_hotels Funktion
+Folgende Umgebungsvariablen bestimmen das Verhalten des Systems im Sandbox-Modus:
 
-Die `search_hotels` Funktion wird wie folgt implementiert:
+- `DF_HEYLOU_GROK_EXT_ENABLED=false`: Betreibt den System im Mock Modus.
+  
+- `PHRONESIS_TICKET`: Ist erforderlich für das Zugriff auf die realen Services. Es ist ein Sicherheitsticket, das Authentifizierung ermöglicht.
 
-```python
-def search_hotels(location, dates, preferences):
-    # Abrufen der Hotel-Liste aus dem HeyLou Travel Knowledge Graph
-    hotels = hey_lou_api.search_hotels(location, dates, preferences)
-    
-    # Rückgabe der Hotel-Liste
-    return hotels
+- `GROK_API_KEY`: Eine API-Schlüssel für die Kommunikation mit der Grok LLM Plattform.
+
+### Sandbox-Architektur
+
+Die Architektur des Sandboxesystems sieht folgendermaßen aus:
+
+```
+Grok-LLM → functionCall → df-heylou-grok-extension.handle_function_call()
+                              ├── search_hotels    → mock | df-heylou-travel-domain
+                              ├── get_rates        → mock | df-pms-mews-adapter
+                              ├── compare_otas     → mock | df-ota-booking-adapter
+                              ├── book_direct      → mock | df-heylou-travel-domain (K_0)
+                              └── optimize_revenue → mock | W40-Stub
+                              ↓
+                          AuditLogger (HMAC-SHA256 JSONL)
 ```
 
-### get\_rates Funktion
+### Sandbox-Monitore
 
-Die `get_rates` Funktion wird wie folgt implementiert:
+Für den Überblick über die Performance und das Verhalten des Systems sind folgende Monitore implementiert:
 
-```python
-def get_rates(hotel_id, date_range):
-    # Abrufen der Preise für das spezifische Hotel innerhalb des bestimmten
-bestimmten Zeitraums
-    rates = hey_lou_api.get_rates(hotel_id, date_range)
-    
-    # Rückgabe der Preise
-    return rates
+- **Performance-Monitoring:** Mit Prometheus und Grafana kann man in Echtzeit die Performance-Metriken anzeigen.
+  
+- **Log-Auswertung:** Elasticsearch, Kibana kombiniert mit Filebeat sammelt und analysiert Logs.
+
+### Sandbox-Deployment
+
+Für das Deployment im Sandbox-Modus wird ein LaunchAgent verwendet:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.kemmer.df-heylou-grok-extension</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Users/make/Projects/dark-factories/df-heylou-grok-extension/run_script.py</string>
+    </array>
+    <key>StartInterval</key>
+    <integer>7200</integer>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
 ```
 
-### compare\_otas Funktion
+### Sandbox-Tests
 
-Die `compare_otas` Funktion wird wie folgt implementiert:
+Die Tests sind unter `tests/` zu finden und können über die Kommandozeile ausgeführt werden:
 
-```python
-def compare_otas(hotel_id, dates):
-    # Abrufen der Preise und Verfügbarkeiten von verschiedenen OTAs
-    ota_rates = hey_lou_api.compare_otas(hotel_id, dates)
-    
-    # Rückgabe der Preise und Verfügbarkeiten
-    return ota_rates
+```bash
+pytest tests/ -v
 ```
-
-### book\_direct Funktion
-
-Die `book_direct` Funktion wird wie folgt implementiert:
-
-```python
-def book_direct(hotel_id, room_type, guest, dates):
-    # Direkte Buchungsanfrage ohne Kommission über die HeyLou API
-    booking = hey_lou_api.book_direct(hotel_id, room_type, guest, dates)
-    
-    # Rückgabe der Buchung
-    return booking
-```
-
-### optimize\_revenue Funktion
-
-Die `optimize_revenue` Funktion ist ein Stub und wird in Zukunft implementi
-implementiert.
-
-## Sicherheit
-Die `df-heylou-grok-extension` verwendet HMAC-SHA256 JSONL für die Audit-Lo
-Audit-Logger, um sicherzustellen, dass alle Anfragen und Antworten protokol
-protokolliert werden. Die Umgebungsvariablen `PHRONESIS_TICKET` und `GROK_A
-`GROK_API_KEY` sind erforderlich, um den Real-Modus Betrieb zu ermöglichen.
-ermöglichen.
+Dies führt alle in der `tests/` Datei definierten Testfälle durch.
 
 ## Fazit
-Die `df-heylou-grok-extension` ist ein wichtiger Bestandteil unserer Strate
-Strategie, um den Reach von HeyLou zu erweitern und die Verbreitung seiner 
-Services zu erhöhen. Durch die Integration mit der Grok LLM Plattform biete
-bieten wir unseren Nutzern eine Vielzahl von Funktionen an, die ihre Reisep
-Reiseplanung und -buchung erleichtern. Wir werden weiterhin an der Entwickl
-Entwicklung und Verbesserung dieser Dark Factory arbeiten, um sicherzustell
-sicherzustellen, dass sie den Bedürfnissen unserer Nutzer entspricht.
 
-## Zukunftsausblick
-In Zukunft planen wir, die `df-heylou-grok-extension` weiter zu entwickeln 
-und zu verbessern. Wir werden neue Funktionen hinzufügen, wie z.B. eine Rev
-Revenue-Optimierung für Hotels, und sicherstellen, dass die Integration mit
-mit der Grok LLM Plattform reibungslos funktioniert. Wir werden auch weiter
-weiterhin an der Sicherheit und dem Schutz der Daten unserer Nutzer arbeite
-arbeiten.
-
-## Konkrete Zahlen und Schritte
-Wir planen, die `df-heylou-grok-extension` wie folgt zu implementieren:
-
-*   Innerhalb der nächsten 6 Wochen werden wir die Implementierung der `sea
-`search_hotels`, `get_rates`, `compare_otas` und `book_direct` Funktionen a
-abschließen.
-*   Innerhalb der nächsten 12 Wochen werden wir die Implementierung der `op
-`optimize_revenue` Funktion abschließen.
-*   Wir planen, die `df-heylou-grok-extension` innerhalb der nächsten 3 Mon
-Monate in den Produktivbetrieb zu überführen.
-
-Wir sind zuversichtlich, dass die `df-heylou-grok-extension` ein wichtiger 
-Erfolg für unser Unternehmen sein wird und unsere Nutzer mit einer Vielzahl
-Vielzahl von Funktionen zur Verfügung stellen wird, die ihre Reiseplanung u
-und -buchung erleichtern.
+Die Integration von HeyLou in die Grok LLM Plattform ist eine kraftvolle Erweiterung, die den Reach von HeyLou erheblich erhöht. Durch die Bereitstellung einer umfassenden Suite von Funktionen für Hotelbuchungen und -bewertungen wird es den Nutzern ermöglicht, ein breites Spektrum an Dienstleistungen ohne Kommission zu nutzen.
