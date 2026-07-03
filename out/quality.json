@@ -1,9 +1,9 @@
 {
   "df": "df-heylou-grok-extension",
-  "ts": "2026-07-02T06:13:26.252487+00:00",
+  "ts": "2026-07-03T00:51:12.584049+00:00",
   "maturity": "TESTED",
   "maturity_level": 4,
   "evidence_grade": 4,
-  "wargame_verdict": "CONDITIONAL",
+  "wargame_verdict": null,
   "crux": "[CRUX-MK]"
 }
