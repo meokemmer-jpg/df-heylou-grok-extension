@@ -10,6 +10,7 @@ Grok-Reference: see vendor docs
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 # === HEYLOU FUNCTION DEFINITIONS (Grok-Format) ===
@@ -166,3 +167,121 @@ def get_function_schema(name: str) -> dict[str, Any] | None:
 def is_k0_relevant(name: str) -> bool:
     """K_0-Filter: book_direct triggers K_0-Gate."""
     return name in {"book_direct"}
+
+
+@dataclass(frozen=True)
+class FunctionRoute:
+    """Decision made by the local Grok function-call adapter."""
+
+    accepted: bool
+    function_name: str | None
+    status: str
+    required_arguments: list[str]
+    missing_arguments: list[str]
+    k0_relevant: bool
+    tool_payload: dict[str, Any] | None
+
+
+DESTRUCTIVE_TERMS = {
+    "delete",
+    "drop",
+    "erase",
+    "exfiltrate",
+    "leak",
+    "purge",
+    "remove",
+    "steal",
+    "wipe",
+}
+
+
+def _schema_required_arguments(name: str) -> list[str]:
+    schema = get_function_schema(name)
+    if schema is None:
+        return []
+    return list(schema["parameters"].get("required", []))
+
+
+def _string_values(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        values: list[str] = []
+        for nested in value.values():
+            values.extend(_string_values(nested))
+        return values
+    if isinstance(value, list):
+        values = []
+        for nested in value:
+            values.extend(_string_values(nested))
+        return values
+    return []
+
+
+def _has_destructive_intent(args: dict[str, Any]) -> bool:
+    words = {
+        token.strip(".,;:!?()[]{}\"'").lower()
+        for text in _string_values(args)
+        for token in text.split()
+    }
+    return bool(words & DESTRUCTIVE_TERMS)
+
+
+def route_function_call(function_call: dict[str, Any]) -> FunctionRoute:
+    """Validate and route a canonical Grok function call.
+
+    The decision is derived from the declared function schemas plus the supplied
+    call arguments. Unsupported, incomplete, or destructive calls are rejected
+    instead of being coerced into a HeyLou capability.
+    """
+
+    name = function_call.get("name")
+    args = function_call.get("args") or {}
+
+    if not isinstance(name, str) or get_function_schema(name) is None:
+        return FunctionRoute(
+            accepted=False,
+            function_name=None,
+            status="unknown_function",
+            required_arguments=[],
+            missing_arguments=[],
+            k0_relevant=False,
+            tool_payload=None,
+        )
+
+    if not isinstance(args, dict):
+        args = {}
+
+    required = _schema_required_arguments(name)
+    missing = [field for field in required if field not in args or args[field] in (None, "")]
+    if missing:
+        return FunctionRoute(
+            accepted=False,
+            function_name=name,
+            status="missing_required_arguments",
+            required_arguments=required,
+            missing_arguments=missing,
+            k0_relevant=is_k0_relevant(name),
+            tool_payload=None,
+        )
+
+    if _has_destructive_intent(args):
+        return FunctionRoute(
+            accepted=False,
+            function_name=name,
+            status="rejected_destructive_intent",
+            required_arguments=required,
+            missing_arguments=[],
+            k0_relevant=is_k0_relevant(name),
+            tool_payload=None,
+        )
+
+    return FunctionRoute(
+        accepted=True,
+        function_name=name,
+        status="routed",
+        required_arguments=required,
+        missing_arguments=[],
+        k0_relevant=is_k0_relevant(name),
+        tool_payload={"function_declarations": [get_function_schema(name)]},
+    )

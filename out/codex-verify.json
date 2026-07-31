@@ -1,0 +1,6 @@
+{
+  "verdict": "HOLLOW",
+  "reason": "Der Test importiert eine in der gezeigten SRC nicht existierende Funktion `route_function_call` und beweist damit weder die Grok-Function-Definitions noch die 5 HeyLou-Capabilities funktional.",
+  "ts": "2026-07-31T00:20:10.184553+00:00",
+  "attempts": 1
+}
