@@ -1,6 +1,6 @@
 {
-  "verdict": "HOLLOW",
-  "reason": "Der Test importiert eine in der gezeigten SRC nicht existierende Funktion `route_function_call` und beweist damit weder die Grok-Function-Definitions noch die 5 HeyLou-Capabilities funktional.",
-  "ts": "2026-07-31T00:20:10.184553+00:00",
-  "attempts": 1
+  "verdict": "HOLDS",
+  "reason": "Der Test ruft die echte Routing-Funktion mit einem validen book_direct-Call und einem destruktiven adversarialen Gegenfall auf und erzwingt konkret unterschiedliche Akzeptanz-/Reject-Outputs inklusive K_0-Routing.",
+  "ts": "2026-07-31T03:16:57.139703+00:00",
+  "attempts": 2
 }
